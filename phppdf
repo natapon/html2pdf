@@ -1,0 +1,108 @@
+#!/usr/bin/php
+<?php
+require_once("Console/CommandLine.php");
+
+$parser = new Console_CommandLine(array(
+    'description'   => 'Html2Pdf generate tools.',
+    'version'       => '1.0.0'
+));
+
+$parser->addOption('filename', array(
+    'short_name'    => '-f',
+    'long_name'     => '--file',
+    'description'   => 'Save to a local file with the name given (may include a path)',
+    'help_name'     => 'FILE'
+));
+
+$parser->addArgument('html', array(
+    'description'   => 'HTML Content or Html File',
+    'help_name'     => 'html'
+));
+
+$parser->addOption('format', array(
+    'long_name'     => '--format',
+    'description'   => 'PDF page size',
+    'help_name'     => 'FORMAT',
+    'default'       => 'A4'
+));
+
+$parser->addOption('margin_left', array(
+    'long_name'     => '--mgl',
+    'description'   => "Sets the page margins for the new document. Value should be specified as LENGTH in millimetres",
+    'help_name'     => 'MARGIN-LEFT',
+    'default'       => 15,
+    'action'        => 'StoreInt'
+));
+
+$parser->addOption('margin_right', array(
+    'long_name'     => '--mgr',
+    'description'   => "Sets the page margins for the new document. Value should be specified as LENGTH in millimetres",
+    'help_name'     => 'MARGIN-RIGHT',
+    'default'       => 15,
+    'action'        => 'StoreInt'
+));
+
+$parser->addOption('margin_top', array(
+    'long_name'     => '--mgt',
+    'description'   => "Sets the page margins for the new document. Value should be specified as LENGTH in millimetres",
+    'help_name'     => 'MARGIN-TOP',
+    'default'       => 15,
+    'action'        => 'StoreInt'
+));
+
+$parser->addOption('margin_bottom', array(
+    'long_name'     => '--mgb',
+    'description'   => "Sets the page margins for the new document. Value should be specified as LENGTH in millimetres",
+    'help_name'     => 'MARGIN-BOTTOM',
+    'default'       => 15,
+    'action'        => 'StoreInt'
+));
+
+$parser->addOption('margin_header', array(
+    'long_name'     => '--mgh',
+    'description'   => "Sets the page margins for the new document. Value should be specified as LENGTH in millimetres",
+    'help_name'     => 'MARGIN-HEADER',
+    'default'       => 9,
+    'action'        => 'StoreInt'
+));
+
+$parser->addOption('margin_footer', array(
+    'long_name'     => '--mgf',
+    'description'   => "Sets the page margins for the new document. Value should be specified as LENGTH in millimetres",
+    'help_name'     => 'MARGIN-FOOTER',
+    'default'       => 9,
+    'action'        => 'StoreInt'
+));
+
+try {
+    require_once("mpdf/mpdf.php");
+
+    $result = $parser->parse();
+
+    $html = $result->args['html'];
+
+    if(file_exists($html)) {
+        $html = file_get_contents($html);
+    }
+
+    $mpdf=new mPDF('utf-8', $result->options['format'], 0, '',
+                    $result->options['margin_left'],
+                    $result->options['margin_right'],
+                    $result->options['margin_top'],
+                    $result->options['margin_bottom'],
+                    $result->options['margin_header'],
+                    $result->options['margin_footer']);
+
+    $mpdf->WriteHTML($html);
+
+    if(isset($result->options['filename'])) {
+        /** save to file **/
+        $mpdf->Output($result->options['filename'], 'F');
+    } else {
+        /** send the file inline to the browser **/
+        $mpdf->Output();
+    }
+} catch(Exception $e) {
+    $parser->displayError($e->getMessage());
+}
+?>
