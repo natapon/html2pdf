@@ -1,5 +1,6 @@
 #!/usr/bin/php
 <?php
+ini_set('include_path', __DIR__);
 require_once("Console/CommandLine.php");
 
 $parser = new Console_CommandLine(array(
