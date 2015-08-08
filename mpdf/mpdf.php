@@ -5286,6 +5286,7 @@ function printobjectbuffer($is_table=false, $blockdir=false) {
 					include(_MPDF_PATH.'qrcode/qrcode.class.php'); 
 				}
 				$this->qrcode = new QRcode($objattr['code'], $objattr['errorlevel']);
+				$this->qrcode->disableBorder();
 				$this->qrcode->displayFPDF($this, $objattr['INNER-X'], $objattr['INNER-Y'], $objattr['bsize']*25, array(255,255,255), array(0,0,0));
 			}
 			else {
